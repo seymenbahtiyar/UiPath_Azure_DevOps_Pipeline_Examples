@@ -25,3 +25,8 @@ Update the repository configurations in the resources section to point to your G
 Modify the triggers to suit your needs.
 
 Adjust the UiPathPack and UiPathDeploy task configurations as needed for your project.
+
+## Other templates
+
+https://github.com/UiPath-US-Services/uipath-azure-pipeline-templates
+
