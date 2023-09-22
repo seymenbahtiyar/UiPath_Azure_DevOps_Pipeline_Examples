@@ -1,0 +1,49 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+pool:
+  Default
+
+trigger: none
+
+# !!! Oluşturulması gereken değişkenler : Git_Source, Git_Repository_Name, Orchestrator_Folder_Name
+# Örnek Git_Source : MyProject/MyRepo
+# Örnek Git_Repository_Name : MyRepo
+# Örnek Orchestrator_Folder_Name : Shared
+
+stages:
+
+- stage: Checkout_Pack_Deploy
+
+  jobs:
+
+  - job: Checkout_Pack_Deploy
+
+    workspace:
+      clean: all
+
+    steps:
+
+    - checkout: self
+      clean: true
+
+    - checkout: git://$(Git_Source)
+      clean: true
+
+
+    - task: UiPathPack@4
+      inputs:
+        versionType: 'CurrentVersion'
+        projectJsonPath: '$(Git_Repository_Name)\project.json'
+        outputType: 'Process'
+        orchestratorConnection: 'UiPath Community Cloud Orchestrator'
+        outputPath: '$(Build.ArtifactStagingDirectory)\Output'
+
+    - task: UiPathDeploy@4
+      inputs:
+        orchestratorConnection: 'UiPath Community Cloud Orchestrator'
+        packagesPath: '$(Build.ArtifactStagingDirectory)\Output'
+        folderName: '$(Orchestrator_Folder_Name)'
+

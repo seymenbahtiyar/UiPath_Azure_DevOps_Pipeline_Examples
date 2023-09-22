@@ -1,0 +1,64 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+pool:
+  Default
+
+trigger: none
+
+resources:
+    repositories:
+
+    - repository: Azure_DevOps_Test_Repository_1
+      type: git
+      name: seymenbahtiyar_Project/Azure_DevOps_Test_Repository_1
+      trigger:
+      - main
+
+    - repository: Azure_DevOps_Test_Repository_2
+      type: git
+      name: seymenbahtiyar_Project/Azure_DevOps_Test_Repository_2
+      trigger:
+      - main
+
+stages:
+
+- stage: Checkout_Pack_Deploy
+
+  jobs:
+
+  - job: Checkout_Pack_Deploy
+
+    workspace:
+      clean: all
+
+    steps:
+
+    - checkout: self
+      clean: true
+      condition: eq(variables['Build.Repository.Name'], 'pipeline')
+
+    - checkout: Azure_DevOps_Test_Repository_1
+      clean: true
+      condition: eq(variables['Build.Repository.Name'], 'Azure_DevOps_Test_Repository_1')
+
+    - checkout: Azure_DevOps_Test_Repository_2
+      clean: true
+      condition: eq(variables['Build.Repository.Name'], 'Azure_DevOps_Test_Repository_2')
+
+    - task: UiPathPack@4
+      inputs:
+        versionType: 'CurrentVersion'
+        projectJsonPath: '$(Build.Repository.Name)\project.json'
+        outputType: 'Process'
+        orchestratorConnection: 'UiPath Community Cloud Orchestrator'
+        outputPath: '$(Build.ArtifactStagingDirectory)\Output'
+
+    - task: UiPathDeploy@4
+      inputs:
+        orchestratorConnection: 'UiPath Community Cloud Orchestrator'
+        packagesPath: '$(Build.ArtifactStagingDirectory)\Output'
+        folderName: 'Shared'
+
